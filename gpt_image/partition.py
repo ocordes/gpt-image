@@ -110,6 +110,9 @@ class Partition:
         partition_guid: str = "",
         alignment: int = 8,
         partition_attributes: int = PartitionAttribute.NONE,
+        # give the possibility to override the calculated LBA
+        first_lba: int = None,
+        last_lba: int = None
     ):
         """Initialize Partition Object"""
         self.type_guid = type_guid
@@ -118,8 +121,8 @@ class Partition:
         # if the partition GUID is empty, generate one
         if not partition_guid:
             self.partition_guid = str(uuid.uuid4())
-        self.first_lba = 0
-        self.last_lba = 0
+        self.first_lba = first_lba
+        self.last_lba = last_lba
         self._attribute_flags = partition_attributes
         self.alignment = alignment
         self.size = size
@@ -277,8 +280,10 @@ class PartitionEntryArray:
                 boundaries
         """
 
-        partition.first_lba = self._get_first_lba(partition)
-        partition.last_lba = self._get_last_lba(partition)
+        if partition.first_lba is None:
+            partition.first_lba = self._get_first_lba(partition)
+        if partition.last_lba is None:
+            partition.last_lba = self._get_last_lba(partition)
 
         if partition.last_lba > self._geometry.last_usable_lba:
             raise PartitionEntryError(

@@ -25,7 +25,7 @@ class Disk:
         image_path: file image path (absolute or relative)
     """
 
-    def __init__(self, image_path: str, sector_size: int = 512) -> None:
+    def __init__(self, image_path: str, sector_size: int = 512, overwrite: bool = False) -> None:
         """Init Disk with a file path
 
         Args:
@@ -36,6 +36,8 @@ class Disk:
         self.image_path = pathlib.Path(image_path)
         self.name = self.image_path.name
         self.sector_size = sector_size
+        self.overwrite = overwrite
+
 
     @staticmethod
     def open(image_path: str) -> "Disk":
@@ -113,7 +115,7 @@ class Disk:
             size in bytes
         """
 
-        self.image_path.touch(exist_ok=False)
+        self.image_path.touch(exist_ok=self.overwrite)
         self.size = size
         self.geometry = Geometry(self.size, self.sector_size)
         self.table = Table(self.geometry)
